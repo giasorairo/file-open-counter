@@ -21,6 +21,10 @@ in `.obsidian/file-open-history.json`:
 Counts are not written into note frontmatter, so opening a note never modifies
 the note itself.
 
+The count for the file you are looking at appears in the status bar, next to
+the word count and similar indicators. Obsidian on mobile has no status bar,
+so counting still happens there but nothing is displayed.
+
 ## Renames and moves
 
 Paths are used as identity, so renaming a file would normally lose its

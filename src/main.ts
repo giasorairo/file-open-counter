@@ -8,13 +8,19 @@ const SAVE_DELAY_MS = 2000;
 export default class FileOpenCounterPlugin extends Plugin {
 	private counts: OpenCounts = {};
 	private saveTimer: number | null = null;
+	private statusBar: HTMLElement | null = null;
 
 	async onload(): Promise<void> {
 		this.counts = await this.readCounts();
 
+		// Mobile has no status bar; the element is simply never shown there.
+		this.statusBar = this.addStatusBarItem();
+		this.app.workspace.onLayoutReady(() => this.refreshStatusBar());
+
 		this.registerEvent(
 			this.app.workspace.on("file-open", (file) => {
 				if (file) this.recordOpen(file);
+				this.refreshStatusBar();
 			}),
 		);
 
@@ -23,6 +29,7 @@ export default class FileOpenCounterPlugin extends Plugin {
 		this.registerEvent(
 			this.app.vault.on("rename", (file, oldPath) => {
 				this.transferCounts(file, oldPath);
+				this.refreshStatusBar();
 			}),
 		);
 
@@ -49,6 +56,22 @@ export default class FileOpenCounterPlugin extends Plugin {
 	private recordOpen(file: TFile): void {
 		this.counts[file.path] = (this.counts[file.path] ?? 0) + 1;
 		this.scheduleSave();
+	}
+
+	/** Shows the count for the file currently in focus. */
+	private refreshStatusBar(): void {
+		if (!this.statusBar) return;
+
+		const file = this.app.workspace.getActiveFile();
+		if (!file) {
+			this.statusBar.setText("");
+			this.statusBar.removeAttribute("aria-label");
+			return;
+		}
+
+		const count = this.counts[file.path] ?? 0;
+		this.statusBar.setText(`${count} ${count === 1 ? "open" : "opens"}`);
+		this.statusBar.setAttribute("aria-label", `${file.path} — opened ${count}×`);
 	}
 
 	/**
@@ -87,7 +110,10 @@ export default class FileOpenCounterPlugin extends Plugin {
 		}
 
 		const removed = before - Object.keys(this.counts).length;
-		if (removed > 0) this.scheduleSave();
+		if (removed > 0) {
+			this.scheduleSave();
+			this.refreshStatusBar();
+		}
 		new Notice(
 			removed > 0
 				? `Removed ${removed} missing ${removed === 1 ? "entry" : "entries"}.`
