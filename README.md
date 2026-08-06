@@ -8,8 +8,11 @@ actually return to.
 
 ## What it does
 
-Every time a file is opened, its count goes up by one. The totals are stored
-in `.obsidian/file-open-history.json`:
+By default a file adds one to its count the first time it is opened each day,
+so the number tells you how many days you came back to it. Turn off **Count
+once per day** in the settings to count every open instead.
+
+The totals are stored in `.obsidian/file-open-history.json`:
 
 ```json
 {
@@ -38,23 +41,15 @@ command **Remove counts for files that no longer exist** clears them out.
 
 ## Reading the counts
 
-With [Dataview](https://github.com/blacksmithgu/obsidian-dataview) installed,
-the most opened files can be listed from any note:
+A `file-open-counter` code block in any note lists the most opened files:
 
 ````markdown
-```dataviewjs
-const path = `${app.vault.configDir}/file-open-history.json`;
-const counts = JSON.parse(await app.vault.adapter.read(path));
-
-dv.table(
-  ["File", "Opens"],
-  Object.entries(counts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 20)
-    .map(([file, count]) => [dv.fileLink(file), count]),
-);
+```file-open-counter
 ```
 ````
+
+How many files it shows is set by **Files shown in the ranking**, which
+defaults to 100. No other plugin is needed.
 
 ## Installing manually
 
