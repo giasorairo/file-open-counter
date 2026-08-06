@@ -119,17 +119,21 @@ export default class FileOpenCounterPlugin extends Plugin {
 		const table = container.createEl("table");
 		const header = table.createEl("thead").createEl("tr");
 		header.createEl("th", { text: "File" });
-		header.createEl("th", { text: this.settings.oncePerDay ? "Days" : "Opens" });
+		header.createEl("th", { text: "Path" });
+		header.createEl("th", { text: "Count" });
 
 		const body = table.createEl("tbody");
 		for (const [path, count] of entries) {
 			const row = body.createEl("tr");
 			const link = row.createEl("td").createEl("a", {
 				cls: "internal-link",
-				text: path.replace(/\.md$/, ""),
+				text: basename(path),
 				href: path,
 			});
 			link.dataset.href = path;
+
+			// The folder alone, since the name is already in the first column.
+			row.createEl("td", { text: path.split("/").slice(0, -1).join("/") });
 			row.createEl("td", { text: String(count) });
 		}
 	}
@@ -153,17 +157,14 @@ export default class FileOpenCounterPlugin extends Plugin {
 			return;
 		}
 
-		const count = this.counts[file.path] ?? 0;
-		const unit = this.settings.oncePerDay
-			? count === 1
-				? "day"
-				: "days"
-			: count === 1
-				? "open"
-				: "opens";
-
-		this.statusBar.setText(`${count} ${unit}`);
-		this.statusBar.setAttribute("aria-label", `${file.path} — ${count} ${unit}`);
+		this.statusBar.setText(`count ${this.counts[file.path] ?? 0}`);
+		// The number is already on screen, so this says how it is counted.
+		this.statusBar.setAttribute(
+			"aria-label",
+			this.settings.oncePerDay
+				? `${file.path} — counted once per day`
+				: `${file.path} — counted on every open`,
+		);
 	}
 
 	/**
@@ -290,6 +291,11 @@ export default class FileOpenCounterPlugin extends Plugin {
 			countedToday: [...this.countedToday],
 		});
 	}
+}
+
+/** File name without its folders or the markdown extension. */
+function basename(path: string): string {
+	return path.split("/").pop()?.replace(/\.md$/, "") ?? path;
 }
 
 /** Local calendar day, so the reset lines up with the user's midnight. */

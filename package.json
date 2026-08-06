@@ -1,6 +1,6 @@
 {
   "name": "file-open-counter",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Obsidian plugin that counts how many times each file is opened.",
   "main": "main.js",
   "type": "module",
