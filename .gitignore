@@ -1,0 +1,10 @@
+node_modules/
+
+# Build output, published through GitHub releases rather than the repository.
+main.js
+*.js.map
+
+# Local vault path used by the deploy script.
+.vault-path
+
+.DS_Store

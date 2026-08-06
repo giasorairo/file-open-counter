@@ -1,0 +1,10 @@
+{
+  "id": "file-open-counter",
+  "name": "File Open Counter",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "Counts how many times each file is opened, and keeps the counts when files are renamed or moved.",
+  "author": "gia sorairo",
+  "authorUrl": "https://github.com/giasorairo",
+  "isDesktopOnly": false
+}
